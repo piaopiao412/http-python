@@ -1,0 +1,35 @@
+'''
+
+    client -http
+    success
+'''
+import requests
+from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
+
+
+# 监控文件上传进度
+def my_callback(monitor):
+    progress = (monitor.bytes_read / monitor.len) * 100
+    print("\r 文件上传进度：%d%%(%d/%d)"
+          % (progress, monitor.bytes_read, monitor.len), end=" ")
+
+
+# 发送from-data数据
+e = MultipartEncoder(
+    fields={
+            'name': '张三',
+            "age": '100',
+            "number": "123456",
+            "sex": "男",
+            "label": "OD",
+            'image': ('BlueDream_1080.jpg', open('BlueDream_1080.jpg', 'rb'), 'multipart/form-data'),
+            }
+)
+
+m = MultipartEncoderMonitor(e, my_callback)
+
+r = requests.post('http://192.168.203.83:8888/upload', data=m,
+                  headers={'Content-Type': m.content_type})
+print(r.text)
+print(r.url)
+print(r.headers)
